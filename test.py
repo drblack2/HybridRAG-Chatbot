@@ -80,99 +80,165 @@ print("TinyLlama Chatbot ready")
 # -----------------------------
 
 HTML_PAGE = """
-
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>Hybrid AI Chatbot</title>
+<title>HybridRAG Chatbot</title>
 
 <style>
-
-body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-text-align:center;
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #020617;
+    color: white;
 }
 
-#chat{
-width:60%;
-margin:auto;
-height:400px;
-overflow:auto;
-border:1px solid gray;
-padding:15px;
-background:#1e293b;
-border-radius:10px;
+/* Header */
+.header {
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    background: #020617;
+    border-bottom: 1px solid #1e293b;
 }
 
-input{
-width:50%;
-padding:10px;
-margin-top:10px;
+/* Chat container */
+#chat {
+    width: 60%;
+    margin: 20px auto;
+    height: 65vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: #020617;
+    border-radius: 12px;
 }
 
-button{
-padding:10px;
-background:#38bdf8;
-border:none;
-cursor:pointer;
+/* Message bubbles */
+.msg {
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 10px;
+    max-width: 75%;
+    line-height: 1.5;
 }
 
+.user {
+    background: #2563eb;
+    margin-left: auto;
+    text-align: right;
+}
+
+.bot {
+    background: #1e293b;
+}
+
+/* Input area */
+.input-area {
+    width: 60%;
+    margin: auto;
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    color: white;
+    outline: none;
+}
+
+button {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #38bdf8;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #0ea5e9;
+}
+
+/* Scrollbar */
+#chat::-webkit-scrollbar {
+    width: 6px;
+}
+#chat::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
 </style>
 
 </head>
 
 <body>
 
-<h2>PDF + Internet AI Chatbot</h2>
+<div class="header">🤖 HybridRAG Chatbot</div>
 
 <div id="chat"></div>
 
-<br>
-
-<input id="question" placeholder="Ask anything">
-<button onclick="ask()">Send</button>
+<div class="input-area">
+    <input id="question" placeholder="Ask anything..." onkeydown="handleKey(event)">
+    <button onclick="ask()">Send</button>
+</div>
 
 <script>
 
-function ask(){
+function addMessage(text, type) {
+    let chat = document.getElementById("chat");
 
-let q = document.getElementById("question").value;
+    let div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerHTML = text;
 
-fetch("/ask",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({question:q})
-})
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
 
-.then(res=>res.json())
+function ask() {
 
-.then(data=>{
+    let q = document.getElementById("question").value;
 
-let chat=document.getElementById("chat");
+    if (!q) return;
 
-chat.innerHTML += "<p><b>You:</b> "+q+"</p>";
+    addMessage("<b>You:</b> " + q, "user");
 
-chat.innerHTML += "<p><b>AI:</b> "+data.answer+"<br><i>Source: "+data.source+"</i></p>";
+    fetch("/ask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ question: q })
+    })
+    .then(res => res.json())
+    .then(data => {
 
-document.getElementById("question").value="";
+        addMessage(
+            "<b>AI:</b> " + data.answer + "<br><small>(" + data.source + ")</small>",
+            "bot"
+        );
 
-chat.scrollTop = chat.scrollHeight;
+    });
 
-})
+    document.getElementById("question").value = "";
+}
 
+function handleKey(e) {
+    if (e.key === "Enter") {
+        ask();
+    }
 }
 
 </script>
 
 </body>
-
 </html>
-
 """
 
 # -----------------------------

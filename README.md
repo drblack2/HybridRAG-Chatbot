@@ -27,3 +27,9 @@ HybridRAG Chatbot is an intelligent AI assistant that combines **PDF-based Retri
 ---
 
 ## 📂 Project Structure
+project/
+│
+├── data/ # Your PDF files
+├── test.py # Main application
+├── requirements.txt
+└── README.md
